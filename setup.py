@@ -21,7 +21,7 @@ setuptools.setup(
     name="docker-jinja3",
     setup_requires=["vcversioner"],
     vcversioner={"vcs_args": ["git", "describe", "--tags", "--long"]},
-    description="Library for interact with v3 Nutanix API",
+    description="Extend your dockerfiles with Jinja2 syntax to to more awesome dockerfiles",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/eliorerz/docker-jinja3",
