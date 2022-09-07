@@ -1,14 +1,11 @@
-# -*- coding: utf-8 -*-
-
-# djinja package imports
-from src.djinja import ConfTree
-
+# docker_jinja3 package imports
 # 3rd party imports
 import pytest
 
+from src.docker_jinja3.conftree import ConfTree
+
 
 class TestConfTree(object):
-
     def test_create_obj(self):
         """
         Test that creating a ConfTree object works and sets default values for internal variables.
@@ -72,6 +69,15 @@ class TestConfTree(object):
         c.merge_data_tree({"bar": False})
         assert c.tree == {"foo": True, "bar": False}
 
+    def test_merge_data_tree_empty(self):
+        """
+        Test that merging of 2 data tree:s work
+        """
+        c = ConfTree()
+        c.tree = {"foo": True}
+        c.merge_data_tree({})
+        assert c.tree == {"foo": True}
+
     def test_merge_data_tree_not_dict(self):
         """
         Exception should be raised if trying to merge a object that is not a dict
@@ -93,11 +99,7 @@ class TestConfTree(object):
         Test that 'get()' returns correct data
         """
         c = ConfTree()
-        c.tree = {
-            "foo": True,
-            "bar": 1,
-            "qwe": "rty"
-        }
+        c.tree = {"foo": True, "bar": 1, "qwe": "rty"}
 
         assert c.get("foo", False) is True
         assert c.get("bar", -1) == 1

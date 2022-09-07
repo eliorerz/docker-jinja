@@ -1,6 +1,6 @@
-from src.djinja import global_function
+from src.docker_jinja3 import global_function
 
 
 @global_function
 def bar(name):
-    return " - {} - ".format(name)
+    return f" - {name} - "

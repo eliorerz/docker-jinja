@@ -1,30 +1,25 @@
-# -*- coding: utf-8 -*-
-
-# python std lib
+import logging
 import os
 import sys
-import logging
-
-# Package imports
-from src.djinja import contrib
-from src.djinja.conftree import ConfTree
 
 # 3rd party imports
 from jinja2 import Template
 
+# Package imports
+from . import _local_env, contrib
+from .conftree import ConfTree
 
 log = logging.getLogger(__name__)
 
 
 class Core(object):
-
     def __init__(self, cli_args):
         """
         :param cli_args: Arguments structure from docopt.
         """
         self.args = cli_args
 
-        log.debug("Cli args: {}".format(self.args))
+        log.debug(f"Cli args: {self.args}")
 
         self.default_config_files = [
             "/etc/dj.yaml",
@@ -35,7 +30,7 @@ class Core(object):
             os.path.join(os.getcwd(), ".dj.json"),
         ]
 
-        log.debug("DEFAULT_CONFIG_FILES: {}".format(self.default_config_files))
+        log.debug(f"DEFAULT_CONFIG_FILES: {self.default_config_files}")
 
         self.outfile = ""
 
@@ -47,15 +42,15 @@ class Core(object):
 
     def parse_env_vars(self):
         """
-        Parse all variables inputed from cli and add them to global config
+        Parse all variables inputted from cli and add them to global config
         """
-        vars = {}
+        env_vars = {}
         for var in self.args.get("--env", []):
             s = var.split("=")
             if len(s) != 2 or (len(s[0]) == 0 or len(s[1]) == 0):
-                raise Exception("var '{0}' is not of format 'key=value'".format(var))
-            vars[s[0]] = s[1]
-        self.config.merge_data_tree({"env": vars})
+                raise Exception(f"var '{var}' is not of format 'key=value'")
+            env_vars[s[0]] = s[1]
+        self.config.merge_data_tree({"env": env_vars})
 
     def load_user_specefied_config_file(self):
         """
@@ -65,7 +60,7 @@ class Core(object):
         """
         user_specefied_config_file = self.args.pop("--config", None)
         if user_specefied_config_file:
-            log.debug("Loading user specefied config file : {}".format(user_specefied_config_file))
+            log.debug(f"Loading user specified config file : {user_specefied_config_file}")
             self.config.load_config_file(user_specefied_config_file)
 
     def handle_data_sources(self):
@@ -84,7 +79,7 @@ class Core(object):
         # Load all specefied datasource files
         for datasource_file in ds:
             if not os.path.exists(datasource_file):
-                raise Exception("Unable to load datasource file : {}".format(datasource_file))
+                raise Exception(f"Unable to load datasource file : {datasource_file}")
 
             p = os.path.dirname(datasource_file)
 
@@ -92,7 +87,7 @@ class Core(object):
                 # Append to sys path so we can import the python file
                 sys.path.insert(0, p)
                 datasource_path = os.path.splitext(os.path.basename(datasource_file))[0]
-                log.debug("{0}".format(datasource_path))
+                log.debug(f"{datasource_path}")
 
                 # Import python file but do nothing with it because all datasources should
                 #  handle and register themself to jinja.
@@ -107,7 +102,7 @@ class Core(object):
                         method_name = method.replace("_global_", "")
                         self._attach_function("globals", getattr(i, method), method_name)
             except ImportError as ie:
-                log.critical("cannot load datasource. {}".format(ie))
+                log.critical(f"cannot load datasource. {ie}")
                 raise ie
             finally:
                 # Clean out path to avoid issue
@@ -130,7 +125,7 @@ class Core(object):
         log.info("Rendering context")
 
         for k, v in context.items():
-            log.info("  * %s: %s" % (k, v))
+            log.info(f"  * {k}: {v}")
 
         log.info("Rendering Dockerfile...")
         out_data = template.render(**context)
@@ -142,7 +137,7 @@ class Core(object):
             log.debug("No --outfile <FILE> was specified. Defaulting to Dockerfile")
             self.outfile = "Dockerfile"
         else:
-            self.outfile = self.args['--outfile']
+            self.outfile = self.args["--outfile"]
 
         with open(self.outfile, "w") as stream:
             log.info("Writing to outfile...")
@@ -152,7 +147,7 @@ class Core(object):
         """
         Register a function so it can be used within Jinja
         """
-        log.debug("Attaching function to jinja : {} : {} : {}".format(attr, func.__name__, name))
+        log.debug(f"Attaching function to jinja : {attr} : {func.__name__} : {name}")
 
         global _local_env
         _local_env[attr][name] = func

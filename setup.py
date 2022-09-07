@@ -28,7 +28,7 @@ setuptools.setup(
     author="Elior Erez (originally written by Grokzen@gmail.com)",
     author_email="elior123@gmail.com",
     license="MIT",
-    scripts=['scripts/dj'],
+    scripts=["scripts/dj"],
     packages=setuptools.find_packages("src"),
     package_dir={"": "src"},
     install_requires=requirements,

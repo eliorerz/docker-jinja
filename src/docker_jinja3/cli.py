@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 __docopt__ = """
 Usage:
   dj -d DOCKERFILE [-o OUTFILE] [-s DSFILE]... [-e ENV]... [-c CONFIGFILE]
@@ -30,15 +28,17 @@ def main():
     This should allways be the first file in this package to be imported
      otherwise setup of logging can fail and cause unwanted behaviour.
     """
-    from src import djinja
     from docopt import docopt
 
-    args = docopt(__docopt__, version=djinja.__version__)
+    from . import __version__, init_logging
+    from .main import Core
 
-    djinja.init_logging(1 if args["--quiet"] else args["--verbosity"])
+    args = docopt(__docopt__, version=__version__)
+
+    init_logging(1 if args["--quiet"] else args["--verbosity"])
 
     # Import rest of application so logging will work for them correctely
-    import src.djinja.main
-    c = src.djinja.main.Core(args)
+
+    c = Core(args)
     c.main()
     return c

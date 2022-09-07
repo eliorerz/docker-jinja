@@ -1,14 +1,11 @@
 docker-jinja - dj
 =================
 
-Forked from https://github.com/Grokzen/docker-jinja
+ - Forked from https://github.com/Grokzen/docker-jinja
 
 Extend your dockerfiles with Jinja2 syntax and logic.
 
 Create new filter and functions for Jinja with simple datasource files.
-
-Build status: [![Build Status](https://travis-ci.org/Grokzen/docker-jinja.svg?branch=master)](https://travis-ci.org/Grokzen/docker-jinja) [![Coverage Status](https://coveralls.io/repos/Grokzen/docker-jinja/badge.png)](https://coveralls.io/r/Grokzen/docker-jinja)
-
 
 
 Installation
@@ -148,12 +145,7 @@ Currently only Jinja2 is supported as rendering engine
 Supported python version
 ------------------------
 
-- 2.7
-- 3.3
-- 3.4
-
-Python 3.2 will not be supported because Jinja2 is only supported on python >= 3.3 (Reference: http://jinja.pocoo.org/docs/intro/). If other rendering engines would be supported then python 3.2 can be supported for those engines.
-
+- 3.10
 
 
 Contribute

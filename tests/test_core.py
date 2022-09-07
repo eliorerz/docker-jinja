@@ -1,21 +1,17 @@
-# -*- coding: utf-8 -*-
-
 # python std lib
 import logging
-
-# djinja package imports
-from src import djinja
-from src.djinja import Core
-from src.djinja import ConfTree
 
 # 3rd party imports
 import pytest
 from jinja2 import Template
 from testfixtures import LogCapture
 
+from src.docker_jinja3 import _local_env, init_logging  # noqa F401
+from src.docker_jinja3.conftree import ConfTree
+from src.docker_jinja3.main import Core
+
 
 class TestCore(object):
-
     def test_create_obj(self):
         """
         Create empty object and ensure defaults is set correctly
@@ -32,13 +28,15 @@ class TestCore(object):
         Test setting env variables from cli and ensure they are set
         correctly in configuration.
         """
-        c = Core({
-            "--env": [
-                "foo=bar",
-                "opa=1",
-                "barfoo=True",
-            ]
-        })
+        c = Core(
+            {
+                "--env": [
+                    "foo=bar",
+                    "opa=1",
+                    "barfoo=True",
+                ]
+            }
+        )
 
         c.parse_env_vars()
         assert c.config.get("foo") == "bar"
@@ -50,31 +48,19 @@ class TestCore(object):
         Test that invalid keyformats cause exceptions
         """
         # specify a key that do not follow the key=value structures
-        c = Core({
-            "--env": [
-                "foo:bar"
-            ]
-        })
+        c = Core({"--env": ["foo:bar"]})
         with pytest.raises(Exception) as ex:
             c.parse_env_vars()
         # TODO: str() maybe not py2 & 3 compatible. Look into unicode in from redis._compat
         assert str(ex.value).startswith("var 'foo:bar' is not of format 'key=value'")
 
-        c = Core({
-            "--env": [
-                "foo="
-            ]
-        })
+        c = Core({"--env": ["foo="]})
         with pytest.raises(Exception) as ex:
             c.parse_env_vars()
         # TODO: str() maybe not py2 & 3 compatible. Look into unicode in from redis._compat
         assert str(ex.value).startswith("var 'foo=' is not of format 'key=value'")
 
-        c = Core({
-            "--env": [
-                "=bar"
-            ]
-        })
+        c = Core({"--env": ["=bar"]})
         with pytest.raises(Exception) as ex:
             c.parse_env_vars()
         # TODO: str() maybe not py2 & 3 compatible. Look into unicode in from redis._compat
@@ -93,12 +79,10 @@ class TestCore(object):
         Test that loadinloading of config file that user specefies work
         and that config keys is set correctly.
         """
-        f = tmpdir.join("empty.json")
-        f.write('{"foo": "bar"}')
+        file = tmpdir.join("empty.json")
+        file.write('{"foo": "bar"}')  # noqa FS003
 
-        c = Core({
-            "--config": str(f)
-        })
+        c = Core({"--config": str(file)})
         c.load_user_specefied_config_file()
         assert c.config.get_tree() == {"foo": "bar"}
 
@@ -116,9 +100,7 @@ class TestCore(object):
         """
         f = tmpdir.join("empty.json")
         f.write('["foo", "bar"]')
-        c = Core({
-            "--config": str(f)
-        })
+        c = Core({"--config": str(f)})
         with pytest.raises(Exception) as ex:
             c.load_user_specefied_config_file()
         assert str(ex.value).startswith("Data tree to merge must be of dict type")
@@ -127,24 +109,22 @@ class TestCore(object):
         """
         Test that loading of datasources work and that they are usable.
         """
-        input = tmpdir.join("Dockerfile.jinja")
-        input.write("{{ 'foo'|upper }} : {{ lower('BAR') }}")
+        dockerfile_input = tmpdir.join("Dockerfile.jinja")
+        dockerfile_input.write("{{ 'foo'|upper }} : {{ lower('BAR') }}")
 
         output = tmpdir.join("Dockerfile")
         dsfile = tmpdir.join("_datasource.py")
-        dsfile.write("""
+        dsfile.write(
+            """
 def _filter_upper(string):
     return string.upper()
 
 def _global_lower(string):
     return string.lower()
-        """)
+        """
+        )
 
-        c = Core({
-            "--dockerfile": str(input),
-            "--outfile": str(output),
-            "--datasource": [str(dsfile)]
-        })
+        c = Core({"--dockerfile": str(dockerfile_input), "--outfile": str(output), "--datasource": [str(dsfile)]})
         c.main()
         assert output.read() == "FOO : bar"
 
@@ -153,13 +133,12 @@ def _global_lower(string):
         Prove a path to a datasource that do not exists and try to load it
         and look for exception to be raised.
         """
-        input = tmpdir.join("Dockerfile.jinja")
+        dockerfile_input = tmpdir.join("Dockerfile.jinja")
         output = tmpdir.join("Dockerfile")
-        c = Core({
-            "--dockerfile": str(input),
-            "--outfile": str(output),
-            "--datasource": ["/tmp/foobar/barfoo"]
-        })
+        c = Core(
+            {"--dockerfile": str(dockerfile_input), "--outfile": str(output), "--datasource": ["/tmp/foobar/barfoo"]}
+        )
+
         with pytest.raises(Exception) as ex:
             c.main()
         assert str(ex.value).startswith("Unable to load datasource file : /tmp/foobar/barfoo")
@@ -172,35 +151,34 @@ def _global_lower(string):
         We fake the ImportError exception by manually raising it from inside
         the datasource file to make it consistent.
         """
-        input = tmpdir.join("Dockerfile.jinja")
-        input.write("foobar")
+        dockerfile_input = tmpdir.join("Dockerfile.jinja")
+        dockerfile_input.write("foobar")
         output = tmpdir.join("Dockerfile")
         dsfile = tmpdir.join("_datasource_.py")
-        dsfile.write("""
+        dsfile.write(
+            """
 raise ImportError("foobar")
-        """)
-        c = Core({
-            "--dockerfile": str(input),
-            "--outfile": str(output),
-            "--datasource": [str(dsfile)]
-        })
+        """
+        )
+        c = Core({"--dockerfile": str(dockerfile_input), "--outfile": str(output), "--datasource": [str(dsfile)]})
         with pytest.raises(ImportError):
             c.main()
 
     def test_process_dockerfile(self, tmpdir):
-        """
-        """
-        input = tmpdir.join("Dockerfile.jinja")
-        input.write("{{ barfoo }}")
+        """ """
+        dockerfile_input = tmpdir.join("Dockerfile.jinja")
+        dockerfile_input.write("{{ barfoo }}")
         o = tmpdir.join("Dockerfile")
         c = tmpdir.join("conf.json")
         c.write('{"env": {"barfoo": "foobar"}}')
 
-        c = Core({
-            "--dockerfile": str(input),
-            "--outfile": str(o),
-            "--config": str(c),
-        })
+        c = Core(
+            {
+                "--dockerfile": str(dockerfile_input),
+                "--outfile": str(o),
+                "--config": str(c),
+            }
+        )
 
         c.load_user_specefied_config_file()
         c.parse_env_vars()
@@ -216,28 +194,29 @@ raise ImportError("foobar")
         """
         pass
 
-    def test_process_dockerfile_no_output_file_specefied(self, tmpdir):
+    def test_process_dockerfile_no_output_file_specified(self, tmpdir):
         """
-        Found a bug that if no --outfile is specefied it will not work and throw exception
+        Found a bug that if no --outfile is specified it will not work and throw exception
          that it should not do...
         """
-        input = tmpdir.join("Dockerfile.jinja")
-        input.write("{{ barfoo }}")
+        dockerfile_input = tmpdir.join("Dockerfile.jinja")
+        dockerfile_input.write("{{ barfoo }}")
         c = tmpdir.join("conf.json")
         c.write('{"env": {"barfoo": "foobar"}}')
 
-        c = Core({
-            "--dockerfile": str(input),
-            "--config": str(c),
-        })
+        c = Core(
+            {
+                "--dockerfile": str(dockerfile_input),
+                "--config": str(c),
+            }
+        )
 
-        with pytest.raises(Exception) as ex:
-            c.load_user_specefied_config_file()
-            c.parse_env_vars()
-            c.handle_data_sources()
-            c.process_dockerfile()
+        c.load_user_specefied_config_file()
+        c.parse_env_vars()
+        c.handle_data_sources()
+        c.process_dockerfile()
 
-        assert str(ex.value).startswith("missing key '--outfile' in cli_args. Could not write to output file.")
+        assert c.outfile == "Dockerfile"
 
     def test__attach_function(self):
         """
@@ -250,6 +229,7 @@ raise ImportError("foobar")
 
         def foo_func():
             pass
+
         c._attach_function("globals", foo_func, "func")
         assert "func" in _local_env["globals"]
         assert _local_env["globals"]["func"] == foo_func
@@ -263,21 +243,22 @@ raise ImportError("foobar")
         #       it should fail with some exception
 
     def test__update_env(self, tmpdir):
-        """
-        """
         global _local_env
 
         i = tmpdir.join("Dockerfile.jinja")
         i.write("{{ func() }}")
         o = tmpdir.join("Dockerfile")
 
-        c = Core({
-            "--dockerfile": str(i),
-            "--outfile": str(o),
-        })
+        c = Core(
+            {
+                "--dockerfile": str(i),
+                "--outfile": str(o),
+            }
+        )
 
         def foo_func():
             return "foobar"
+
         c._attach_function("globals", foo_func, "func")
 
         template = Template(i.read())
@@ -292,17 +273,19 @@ raise ImportError("foobar")
         """
         # TODO: Add datasource support
         # TODO: Add default config data files
-        input = tmpdir.join("Dockerfile.jinja")
-        input.write("{{ myvar }}")
+        dockerfile_input = tmpdir.join("Dockerfile.jinja")
+        dockerfile_input.write("{{ myvar }}")
         o = tmpdir.join("Dockerfile")
         c = tmpdir.join("conf.json")
         c.write('{"env": {"myvar": "foobar"}}')
 
-        c = Core({
-            "--dockerfile": str(input),
-            "--outfile": str(o),
-            "--config": str(c),
-        })
+        c = Core(
+            {
+                "--dockerfile": str(dockerfile_input),
+                "--outfile": str(o),
+                "--config": str(c),
+            }
+        )
 
         c.main()
         assert o.read() == "foobar"
@@ -311,8 +294,8 @@ raise ImportError("foobar")
         """
         Test that if -vvvvv is passed into docopt and debug logging will output.
         """
-        djinja.init_logging(5)
-        Log = logging.getLogger("foobar")
-        with LogCapture() as l:
-            Log.debug("barfoo")
-        l.check(("foobar", "DEBUG", "barfoo"))
+        init_logging(5)
+        log = logging.getLogger("foobar")
+        with LogCapture() as log_capture:
+            log.debug("barfoo")
+            log_capture.check(("foobar", "DEBUG", "barfoo"))

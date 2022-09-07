@@ -1,6 +1,6 @@
 def _global_foo(name):
-    return " - {} - ".format(name)
+    return f" - {name} - "
 
 
 def _filter_bar(name):
-    return " * {} * ".format(name)
+    return f" * {name} * "

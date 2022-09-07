@@ -8,5 +8,6 @@ All filters should have their method name start with _filter_ to auto load by ed
 
 All global functions should have their method name start with _func_ to auto load by ed
 """
-from . import basic
-from . import file
+from . import basic, file
+
+__all__ = ["basic", "file"]

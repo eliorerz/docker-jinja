@@ -1,6 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
 """ docker-jinja """
 
 __author__ = "Johan Grok Andersson <Grokzen@gmail.com>"
@@ -17,6 +15,6 @@ if bindir != 'bin':
     sys.path.append(os.path.join(prefix, bindir, 'lib'))
 
 if __name__ == "__main__":
-    from src.djinja import cli
+    from docker_jinja3 import cli
 
     cli.main()
