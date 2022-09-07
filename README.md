@@ -1,16 +1,7 @@
-Project status
-==============
-
-**IMPORTANT**
-
-AS OF JANUARY 01 (2017-01-01) THIS PROJECT IS NO LONGER MAINTAINED BY GROKZEN OR WILL RECIEVE ANY UPDATES.
-
-ALL NEW ISSUES OR PR:S WILL NOT BE RESPONDED TO OR DEALT WITH. SOURCE WILL REMAIN AVAILABLE.
-
-
-
 docker-jinja - dj
 =================
+
+Forked from https://github.com/Grokzen/docker-jinja
 
 Extend your dockerfiles with Jinja2 syntax and logic.
 

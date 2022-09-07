@@ -1,6 +1,4 @@
--r requirements.txt
-
-testfixtures==4.0.0
-pytest==2.5.2
-tox==1.7.2
-coveralls==0.4.2
+testfixtures==7.0.0
+pytest==7.1.2
+tox==3.25.1
+coveralls==3.3.1

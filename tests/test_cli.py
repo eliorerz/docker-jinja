@@ -4,7 +4,7 @@
 import sys
 
 # djinja package imports
-from djinja import cli
+from src.djinja import cli
 
 
 class TestCLI(object):

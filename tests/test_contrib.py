@@ -4,7 +4,7 @@
 import os
 
 # djinja package imports
-from djinja.main import Core
+from src.djinja import Core
 
 
 class TestContribBasic(object):

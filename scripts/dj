@@ -17,5 +17,6 @@ if bindir != 'bin':
     sys.path.append(os.path.join(prefix, bindir, 'lib'))
 
 if __name__ == "__main__":
-    from djinja import cli
+    from src.djinja import cli
+
     cli.main()

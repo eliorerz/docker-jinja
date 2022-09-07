@@ -1,4 +1,4 @@
-from djinja.env import global_function
+from src.djinja import global_function
 
 
 @global_function

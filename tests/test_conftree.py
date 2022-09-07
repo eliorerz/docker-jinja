@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 # djinja package imports
-from djinja.conftree import ConfTree
+from src.djinja import ConfTree
 
 # 3rd party imports
 import pytest
@@ -53,7 +53,7 @@ class TestConfTree(object):
 
     def test_load_xml_file(self, tmpdir):
         """
-        This will test that exception is raised when file contains something
+        This will tests that exception is raised when file contains something
          but it is not a supported datatype. For example XML.
         """
         f = tmpdir.join("xml.json")

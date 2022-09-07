@@ -1,34 +1,50 @@
-#!/usr/bin/env python
 import os
-from setuptools import setup, find_packages
+import sys
 
-settings = dict()
+import setuptools
 
-# TODO: Load dependencies from requirements.txt file
+ROOT = os.path.dirname(__file__)
 
-long_description = open(os.path.join(os.path.dirname(__file__), 'README.md')).read()
+if sys.version_info < (3, 7, 0):
+    sys.exit("Python 3.7.0 is the minimum required version")
 
-settings.update(
-    name='docker-jinja3',
-    version='1.0.0',
-    description='Extend your dockerfiles with Jinja2 syntax to to more awesome dockerfiles',
+with open(os.path.join(ROOT, "README.md")) as f:
+    long_description = f.read()
+
+with open(os.path.join(ROOT, "requirements.txt")) as f:
+    requirements = f.readlines()
+
+with open(os.path.join(ROOT, "dev-requirements.txt")) as f:
+    dev_requirements = f.readlines()
+
+setuptools.setup(
+    name="docker-jinja3",
+    setup_requires=["vcversioner"],
+    vcversioner={"vcs_args": ["git", "describe", "--tags", "--long"]},
+    description="Library for interact with v3 Nutanix API",
     long_description=long_description,
-    author='Johan Andersson',
-    author_email='Grokzen@gmail.com',
-    packages=find_packages(exclude=['.tox', '*test/']),
-    scripts=['scripts/dj'],
-    install_requires=[
-        'PyYAML==6.0',
-        'Jinja2==3.1.2',
-        'docopt==0.6.2',
-    ],
+    long_description_content_type="text/markdown",
+    url="https://github.com/eliorerz/docker-jinja3",
+    author="Elior Erez (originally written by Grokzen@gmail.com)",
+    author_email="elior123@gmail.com",
     license="MIT",
-    url='https://github.com/Grokzen/docker-jinja',
-    classifiers=(
-        'Programming Language :: Python :: 3.10',
-        'Environment :: Console',
-        'Operating System :: POSIX',
-    )
+    scripts=['scripts/dj'],
+    packages=setuptools.find_packages("src"),
+    package_dir={"": "src"},
+    install_requires=requirements,
+    tests_require=requirements + dev_requirements,
+    include_package_data=True,
+    python_requires=">=3.7.0",
+    classifiers=[
+        "Development Status :: 3 - Alpha",
+        "License :: OSI Approved :: MIT License",
+        "Operating System :: OS Independent",
+        "Programming Language :: Python",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Topic :: Software Development :: Build Tools",
+        "Topic :: Software Development :: Testing",
+    ],
 )
-
-setup(**settings)

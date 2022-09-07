@@ -6,9 +6,8 @@ import sys
 import logging
 
 # Package imports
-from djinja import contrib
-from djinja import _local_env
-from djinja.conftree import ConfTree
+from src.djinja import contrib
+from src.djinja.conftree import ConfTree
 
 # 3rd party imports
 from jinja2 import Template

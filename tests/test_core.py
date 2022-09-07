@@ -4,10 +4,9 @@
 import logging
 
 # djinja package imports
-import djinja
-from djinja import _local_env
-from djinja.main import Core
-from djinja.conftree import ConfTree
+from src import djinja
+from src.djinja import Core
+from src.djinja import ConfTree
 
 # 3rd party imports
 import pytest
