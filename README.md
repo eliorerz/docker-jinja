@@ -1,7 +1,7 @@
 docker-jinja - dj
 =================
 
- - Forked from https://github.com/Grokzen/docker-jinja
+ - Forked from https://github.com/Grokzen/docker-jinja - Works with python >= 3.7
 
 Extend your dockerfiles with Jinja2 syntax and logic.
 
